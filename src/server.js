@@ -76,6 +76,12 @@ app.put('/api/products/:id', asyncRoute(async (req, res) => {
   res.json(product);
 }));
 
+app.delete('/api/products/:id', asyncRoute(async (req, res) => {
+  const [result] = await pool.query('DELETE FROM products WHERE id=?', [req.params.id]);
+  if (!result.affectedRows) return res.status(404).json({ error: 'Product not found' });
+  res.status(204).end();
+}));
+
 // CUSTOMERS
 app.get('/api/customers', asyncRoute(async (req, res) => {
   const search = String(req.query.search || '').trim();
@@ -100,6 +106,20 @@ app.post('/api/customers', asyncRoute(async (req, res) => {
   );
   const [[customer]] = await pool.query('SELECT * FROM customers WHERE id=?', [r.insertId]);
   res.status(201).json(customer);
+}));
+
+app.delete('/api/customers/:id', asyncRoute(async (req, res) => {
+  const [[invoice]] = await pool.query(
+    'SELECT id FROM invoices WHERE customer_id=? LIMIT 1',
+    [req.params.id]
+  );
+  if (invoice) {
+    return res.status(409).json({ error: 'Customer cannot be removed because invoices exist for this account' });
+  }
+
+  const [result] = await pool.query('DELETE FROM customers WHERE id=?', [req.params.id]);
+  if (!result.affectedRows) return res.status(404).json({ error: 'Customer not found' });
+  res.status(204).end();
 }));
 
 // DASHBOARD

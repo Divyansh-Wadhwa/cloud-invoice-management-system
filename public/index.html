@@ -906,6 +906,7 @@ button{cursor:pointer;border:0}
               <th>Email</th>
               <th>GSTIN</th>
               <th>Address</th>
+                <th>Actions</th>
             </tr>
 
           </thead>
@@ -1631,6 +1632,13 @@ async function loadProducts(){
               Edit
             </button>
 
+            <button
+              class="btn btn-danger"
+              onclick="removeProduct(${p.id})"
+            >
+              Remove
+            </button>
+
           </td>
 
         </tr>
@@ -1639,6 +1647,31 @@ async function loadProducts(){
       .join('')
       ||
       '<tr><td colspan="7" class="empty">No products found.</td></tr>';
+
+  }catch(e){
+
+    toast(e.message);
+
+  }
+
+}
+
+
+async function removeProduct(id){
+
+  const product = state.products.find(p => p.id === id);
+  if(!confirm('Remove product "' + (product?.name || '') + '"?'))
+    return;
+
+  try{
+
+    await api(
+      '/api/products/' + id,
+      {method:'DELETE'}
+    );
+
+    toast('Product removed');
+    loadProducts();
 
   }catch(e){
 
@@ -1887,12 +1920,21 @@ async function loadCustomers(){
             ${esc(c.address || '-')}
           </td>
 
+          <td>
+            <button
+              class="btn btn-danger"
+              onclick="removeCustomer(${c.id})"
+            >
+              Remove
+            </button>
+          </td>
+
         </tr>
 
       `)
       .join('')
       ||
-      '<tr><td colspan="5" class="empty">No customers found.</td></tr>';
+      '<tr><td colspan="6" class="empty">No customers found.</td></tr>';
 
 
     const current =
@@ -1915,6 +1957,31 @@ async function loadCustomers(){
 
     billCustomer.value =
       current;
+
+  }catch(e){
+
+    toast(e.message);
+
+  }
+
+}
+
+
+async function removeCustomer(id){
+
+  const customer = state.customers.find(c => c.id === id);
+  if(!confirm('Remove customer "' + (customer?.name || '') + '"?'))
+    return;
+
+  try{
+
+    await api(
+      '/api/customers/' + id,
+      {method:'DELETE'}
+    );
+
+    toast('Customer removed');
+    loadCustomers();
 
   }catch(e){
 
