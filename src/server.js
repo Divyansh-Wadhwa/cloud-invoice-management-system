@@ -2,7 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import 'dotenv/config';
 import { pool } from './db.js';
-import { uploadPdf, createDownloadUrl } from './s3.js';
+import { uploadPdf, createDownloadUrl, deletePdf } from './s3.js';
 import { buildInvoicePdf } from './pdf.js';
 import { sendInvoiceEmail } from './email.js';
 
@@ -170,6 +170,20 @@ app.get('/api/invoices/:id/download', asyncRoute(async (req, res) => {
   const [[invoice]] = await pool.query('SELECT pdf_key,invoice_number FROM invoices WHERE id=?', [req.params.id]);
   if (!invoice?.pdf_key) return res.status(404).json({ error: 'Invoice PDF not found' });
   res.json({ url: await createDownloadUrl(invoice.pdf_key), invoice_number: invoice.invoice_number });
+}));
+
+app.delete('/api/invoices/:id', asyncRoute(async (req, res) => {
+  const [[invoice]] = await pool.query(
+    'SELECT pdf_key FROM invoices WHERE id=?',
+    [req.params.id]
+  );
+  if (!invoice) return res.status(404).json({ error: 'Invoice not found' });
+
+  if (invoice.pdf_key) await deletePdf(invoice.pdf_key);
+
+  const [result] = await pool.query('DELETE FROM invoices WHERE id=?', [req.params.id]);
+  if (!result.affectedRows) return res.status(404).json({ error: 'Invoice not found' });
+  res.status(204).end();
 }));
 
 app.post('/api/invoices', asyncRoute(async (req, res) => {

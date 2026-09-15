@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, GetObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import 'dotenv/config';
 
@@ -23,4 +23,9 @@ export async function createDownloadUrl(key) {
     new GetObjectCommand({ Bucket: bucket, Key: key }),
     { expiresIn: Number(process.env.PRESIGNED_URL_EXPIRES || 900) }
   );
+}
+
+export async function deletePdf(key) {
+  if (!bucket) throw new Error('S3_BUCKET is not configured');
+  await s3.send(new DeleteObjectCommand({ Bucket: bucket, Key: key }));
 }

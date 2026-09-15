@@ -2667,6 +2667,13 @@ async function loadInvoices(){
               PDF
             </button>
 
+            <button
+              class="btn btn-danger"
+              onclick="removeInvoice(${i.id}, '${esc(i.invoice_number)}')"
+            >
+              Remove
+            </button>
+
           </td>
 
         </tr>
@@ -2700,6 +2707,30 @@ async function downloadInvoice(id){
       j.url,
       '_blank'
     );
+
+  }catch(e){
+
+    toast(e.message);
+
+  }
+
+}
+
+
+async function removeInvoice(id, invoiceNumber){
+
+  if(!confirm('Remove invoice "' + invoiceNumber + '" and its PDF?'))
+    return;
+
+  try{
+
+    await api(
+      '/api/invoices/' + id,
+      {method:'DELETE'}
+    );
+
+    toast('Invoice and PDF removed');
+    loadInvoices();
 
   }catch(e){
 
