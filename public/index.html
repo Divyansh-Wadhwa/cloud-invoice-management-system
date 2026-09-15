@@ -1027,9 +1027,10 @@ body:before{display:none}
   padding:1px 12px 44px;
   color:#f5f0e7;
   font-family:"Cormorant Garamond",Georgia,serif;
-  font-size:29px;
+  font-size:26px;
   font-weight:600;
-  letter-spacing:.2px;
+  letter-spacing:-.2px;
+  white-space:nowrap;
 }
 
 .brand:before{
@@ -1086,6 +1087,7 @@ body:before{display:none}
   letter-spacing:-1.5px;
   line-height:.95;
 }
+.mobile-brand{display:none}
 .top .muted{font-size:11px;letter-spacing:.05em;text-transform:uppercase}
 
 .card{
@@ -1259,6 +1261,15 @@ body:before{display:none}
   .nav button:before{color:#c5a36b;font-size:16px}
   .main{margin:0;width:100%;padding:23px 14px 30px}
   .top{margin-bottom:24px}
+  .mobile-brand{
+    display:block;
+    margin-bottom:5px;
+    color:#b58b4d;
+    font-size:10px;
+    font-weight:800;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+  }
   .top h1{font-size:39px}
   .top .muted{font-size:9px}
   .top .btn{min-width:43px;padding:9px;font-size:0}
@@ -1287,10 +1298,10 @@ body:before{display:none}
 
 <aside class="sidebar">
 
-  <div class="brand">Billing</div>
+  <div class="brand">Private Ledger</div>
 
   <div class="brand-note">
-    <span>PRIVATE LEDGER</span>
+    <span>EXECUTIVE WORKSPACE</span>
     <small>Cloud finance suite</small>
   </div>
 
@@ -1310,6 +1321,7 @@ body:before{display:none}
   <div class="top">
 
     <div>
+      <div class="mobile-brand">Private Ledger</div>
       <h1 id="pageTitle">Dashboard</h1>
       <div class="muted">Business billing and invoice management</div>
     </div>
