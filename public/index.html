@@ -1242,6 +1242,7 @@ body:before{display:none}
 .customer-option{border-radius:5px;font-size:12px}
 
 .modal{background:rgba(18,22,19,.72);backdrop-filter:blur(10px)}
+#scannerModal{z-index:100}
 .modalbox{border:1px solid #d4c09a;border-radius:10px;background:#fbfaf7;box-shadow:0 30px 90px rgba(12,15,13,.3);padding:28px}
 .modalbox h2{color:#1d211e;font-family:"Cormorant Garamond",Georgia,serif;font-size:31px;font-weight:600}
 .toast{right:25px;bottom:25px;border:1px solid #b58b4d;background:#171b18;border-radius:6px;box-shadow:var(--shadow)}
@@ -2198,6 +2199,7 @@ const state = {
   editingInvoiceId: null,
   scanner: null,
   scannerMode: null,
+  scannerHandled: false,
   scannedProduct: null
 };
 
@@ -3737,6 +3739,7 @@ async function openScanner(){
 
   state.scannerMode =
     'billing';
+  state.scannerHandled = false;
 
 
   scannerTitle.textContent =
@@ -3799,6 +3802,9 @@ async function openScanner(){
         'scannerVideo',
         (result,err) => {
 
+          if(state.scannerHandled)
+            return;
+
           if(result){
 
             const text =
@@ -3809,6 +3815,7 @@ async function openScanner(){
 
             if(text){
 
+              state.scannerHandled = true;
               closeScanner();
 
               lookupBarcode(text);
@@ -3844,6 +3851,7 @@ async function openProductBarcodeScanner(){
 
   state.scannerMode =
     'product';
+  state.scannerHandled = false;
 
 
   scannerTitle.textContent =
@@ -3906,7 +3914,10 @@ async function openProductBarcodeScanner(){
         'scannerVideo',
         (result,err) => {
 
-          if(result){
+          if(state.scannerHandled)
+            return;
+
+          if(result && state.scannerMode === 'product'){
 
             const text =
               result
@@ -3918,47 +3929,29 @@ async function openProductBarcodeScanner(){
               return;
 
 
-            /*
-              PRODUCT REGISTRATION MODE
-            */
-
-            if(
-              state.scannerMode ===
-              'product'
-            ){
-
-              pBarcode.value =
-                text;
-
-
-              productBarcodeStatus.textContent =
-                'Barcode detected: ' +
-                text;
-
-
-              productBarcodeStatus.className =
-                'small';
-
-
-              closeScanner();
-
-
-              toast(
-                'Barcode scanned successfully'
-              );
-
-
-              return;
-
-            }
-
-
-            /*
-              BILLING MODE
-            */
+            state.scannerHandled = true;
+            pBarcode.value = text;
+            pBarcode.dispatchEvent(new Event('input', { bubbles:true }));
+            pBarcode.dispatchEvent(new Event('change', { bubbles:true }));
+            productBarcodeStatus.textContent =
+              'Barcode detected: ' + text;
+            productBarcodeStatus.className = 'small';
 
             closeScanner();
+            toast('Barcode scanned successfully');
 
+            return;
+
+          }
+
+
+          if(result && state.scannerMode === 'billing'){
+
+            const text = result.getText().trim();
+            if(!text) return;
+
+            state.scannerHandled = true;
+            closeScanner();
             lookupBarcode(text);
 
           }
@@ -3998,6 +3991,15 @@ function closeScanner(){
   state.scanner = null;
 
   state.scannerMode = null;
+
+  const video =
+    document.getElementById('scannerVideo');
+
+  video?.srcObject?.getTracks()
+    .forEach(track => track.stop());
+
+  if(video)
+    video.srcObject = null;
 
   scannerModal.classList.remove(
     'show'
