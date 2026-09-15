@@ -186,6 +186,141 @@ app.delete('/api/invoices/:id', asyncRoute(async (req, res) => {
   res.status(204).end();
 }));
 
+app.put('/api/invoices/:id', asyncRoute(async (req, res) => {
+  const { customer_id, items, discount = 0, email_invoice = true } = req.body;
+  if (!customer_id || !Array.isArray(items) || !items.length) {
+    return res.status(400).json({ error: 'Customer and at least one item are required' });
+  }
+
+  const [[existing]] = await pool.query(
+    'SELECT * FROM invoices WHERE id=?',
+    [req.params.id]
+  );
+  if (!existing) return res.status(404).json({ error: 'Invoice not found' });
+
+  const [[customer]] = await pool.query('SELECT * FROM customers WHERE id=?', [customer_id]);
+  if (!customer) return res.status(400).json({ error: 'Customer not found' });
+
+  const normalized = [];
+  let subtotal = 0;
+  let gstAmount = 0;
+
+  for (const line of items) {
+    const [[p]] = await pool.query('SELECT * FROM products WHERE id=?', [line.product_id]);
+    if (!p) throw new Error(`Product ${line.product_id} not found`);
+
+    const quantity = Number(line.quantity);
+    const unitPrice = line.unit_price_override !== undefined
+      ? Number(line.unit_price_override)
+      : Number(p.selling_price);
+    if (!(quantity > 0)) throw new Error(`Invalid quantity for ${p.name}`);
+    if (!(unitPrice >= 0)) throw new Error(`Invalid price for ${p.name}`);
+
+    const amount = quantity * unitPrice;
+    const lineGst = amount * Number(p.gst_rate || 0) / 100;
+    subtotal += amount;
+    gstAmount += lineGst;
+    normalized.push({
+      product_id: p.id,
+      barcode: p.barcode,
+      product_name: p.name,
+      unit: p.unit,
+      quantity,
+      unit_price: unitPrice,
+      gst_rate: Number(p.gst_rate || 0),
+      gst_amount: lineGst,
+      amount
+    });
+  }
+
+  const safeDiscount = Math.max(0, Number(discount || 0));
+  if (safeDiscount > subtotal) throw new Error('Discount cannot exceed subtotal');
+  const taxableAmount = subtotal - safeDiscount;
+  gstAmount = subtotal > 0 ? gstAmount * (taxableAmount / subtotal) : 0;
+  const total = taxableAmount + gstAmount;
+  const pdfBuffer = await buildInvoicePdf({
+    invoiceNumber: existing.invoice_number,
+    customer,
+    items: normalized,
+    subtotal,
+    discount: safeDiscount,
+    taxableAmount,
+    gstAmount,
+    total
+  });
+
+  const newKey = `invoices/${new Date().getFullYear()}/${existing.invoice_number}-${Date.now()}.pdf`;
+  await uploadPdf(newKey, pdfBuffer);
+
+  const conn = await pool.getConnection();
+  try {
+    await conn.beginTransaction();
+    await conn.query(
+      `UPDATE invoices SET customer_id=?,customer_name=?,customer_email=?,customer_phone=?,
+       customer_address=?,customer_gstin=?,subtotal=?,discount=?,taxable_amount=?,gst_amount=?,
+       total=?,pdf_key=?,email_status=? WHERE id=?`,
+      [
+        customer.id, customer.name, customer.email, customer.phone, customer.address,
+        customer.gstin, subtotal, safeDiscount, taxableAmount, gstAmount, total, newKey,
+        email_invoice && customer.email ? 'PENDING' : 'SKIPPED', req.params.id
+      ]
+    );
+    await conn.query('DELETE FROM invoice_items WHERE invoice_id=?', [req.params.id]);
+    for (const i of normalized) {
+      const adjustedGst = subtotal > 0 ? i.gst_amount * (taxableAmount / subtotal) : 0;
+      await conn.query(
+        `INSERT INTO invoice_items
+         (invoice_id,product_id,barcode,product_name,unit,quantity,unit_price,gst_rate,gst_amount,amount)
+         VALUES(?,?,?,?,?,?,?,?,?,?)`,
+        [req.params.id, i.product_id, i.barcode, i.product_name, i.unit, i.quantity, i.unit_price, i.gst_rate, adjustedGst, i.amount]
+      );
+    }
+    await conn.commit();
+  } catch (e) {
+    try { await conn.rollback(); } catch {}
+    try { await deletePdf(newKey); } catch {}
+    throw e;
+  } finally {
+    conn.release();
+  }
+
+  if (existing.pdf_key) await deletePdf(existing.pdf_key);
+
+  let emailStatus = email_invoice && customer.email ? 'PENDING' : 'SKIPPED';
+  let emailError = null;
+  if (email_invoice && customer.email) {
+    try {
+      await sendInvoiceEmail({
+        to: customer.email,
+        invoiceNumber: existing.invoice_number,
+        customerName: customer.name,
+        pdfBuffer
+      });
+      emailStatus = 'SENT';
+      await pool.query('UPDATE invoices SET email_status=? WHERE id=?', ['SENT', req.params.id]);
+    } catch (e) {
+      emailStatus = 'FAILED';
+      emailError = e.message;
+      await pool.query('UPDATE invoices SET email_status=? WHERE id=?', ['FAILED', req.params.id]);
+    }
+  }
+
+  res.json({
+    success: true,
+    id: Number(req.params.id),
+    invoice_number: existing.invoice_number,
+    subtotal,
+    discount: safeDiscount,
+    taxableAmount,
+    gstAmount,
+    total,
+    pdf_key: newKey,
+    email_status: emailStatus,
+    email_error: emailError,
+    download_url: await createDownloadUrl(newKey)
+  });
+}));
+
 app.post('/api/invoices', asyncRoute(async (req, res) => {
   const { customer_id, items, discount = 0, email_invoice = true } = req.body;
   if (!customer_id || !Array.isArray(items) || !items.length) {
