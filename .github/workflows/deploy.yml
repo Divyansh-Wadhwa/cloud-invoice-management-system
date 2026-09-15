@@ -1,26 +1,54 @@
-- name: Deploy to EC2
-  uses: appleboy/ssh-action@v1.2.0
-  with:
-    host: ${{ secrets.EC2_HOST }}
-    username: ubuntu
-    key: ${{ secrets.EC2_SSH_KEY }}
-    port: 22
-    timeout: 30s
-    command_timeout: 10m
-    script: |
-      set -e
-      cd ~/cloud-invoice-management-system
+name: Deploy Invoice App to EC2
 
-      git pull origin main
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
 
-      docker stop bakery-invoice-app || true
-      docker rm bakery-invoice-app || true
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
 
-      docker build -t bakery-invoice-app .
+    steps:
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          port: 22
+          timeout: 30s
+          command_timeout: 10m
 
-      docker run -d \
-        --name bakery-invoice-app \
-        --restart unless-stopped \
-        --env-file .env \
-        -p 80:3000 \
-        bakery-invoice-app
+          script: |
+            set -e
+
+            echo "=== Starting deployment ==="
+
+            cd ~/cloud-invoice-management-system
+
+            echo "=== Pulling latest code ==="
+            git fetch origin main
+            git reset --hard origin/main
+
+            echo "=== Stopping old container ==="
+            docker stop bakery-invoice-app || true
+            docker rm bakery-invoice-app || true
+
+            echo "=== Building Docker image ==="
+            docker build -t bakery-invoice-app .
+
+            echo "=== Starting new container ==="
+            docker run -d \
+              --name bakery-invoice-app \
+              --restart unless-stopped \
+              --env-file .env \
+              -p 80:3000 \
+              bakery-invoice-app
+
+            echo "=== Checking container ==="
+            sleep 5
+            docker ps
+
+            echo "=== Deployment complete ==="
