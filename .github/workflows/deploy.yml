@@ -1,23 +1,26 @@
-name: Deploy Billing App to EC2
+- name: Deploy to EC2
+  uses: appleboy/ssh-action@v1.2.0
+  with:
+    host: ${{ secrets.EC2_HOST }}
+    username: ubuntu
+    key: ${{ secrets.EC2_SSH_KEY }}
+    port: 22
+    timeout: 30s
+    command_timeout: 10m
+    script: |
+      set -e
+      cd ~/cloud-invoice-management-system
 
-on:
-  push:
-    branches: [ main ]
+      git pull origin main
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy over SSH
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            cd ~/cloud-invoice-management-system
-            git pull origin main
-            docker stop bakery-invoice-app || true
-            docker rm bakery-invoice-app || true
-            docker build -t bakery-invoice-app .
-            docker run -d --name bakery-invoice-app --restart unless-stopped --env-file .env -p 80:3000 bakery-invoice-app
+      docker stop bakery-invoice-app || true
+      docker rm bakery-invoice-app || true
+
+      docker build -t bakery-invoice-app .
+
+      docker run -d \
+        --name bakery-invoice-app \
+        --restart unless-stopped \
+        --env-file .env \
+        -p 80:3000 \
+        bakery-invoice-app
