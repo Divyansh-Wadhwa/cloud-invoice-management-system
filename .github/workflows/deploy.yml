@@ -24,31 +24,42 @@ jobs:
           script: |
             set -e
 
-            echo "=== Starting deployment ==="
+            echo "================================"
+            echo "Starting deployment"
+            echo "================================"
 
             cd ~/cloud-invoice-management-system
 
-            echo "=== Pulling latest code ==="
+            echo "Pulling latest code..."
             git fetch origin main
             git reset --hard origin/main
 
-            echo "=== Stopping old container ==="
+            echo "Building new Docker image..."
+            docker build -t bakery-invoice-app:latest .
+
+            echo "Stopping old container..."
             docker stop bakery-invoice-app || true
+
+            echo "Removing old container..."
             docker rm bakery-invoice-app || true
 
-            echo "=== Building Docker image ==="
-            docker build -t bakery-invoice-app .
-
-            echo "=== Starting new container ==="
+            echo "Starting new container..."
             docker run -d \
               --name bakery-invoice-app \
               --restart unless-stopped \
               --env-file .env \
               -p 80:3000 \
-              bakery-invoice-app
+              bakery-invoice-app:latest
 
-            echo "=== Checking container ==="
+            echo "Waiting for application..."
             sleep 5
-            docker ps
 
-            echo "=== Deployment complete ==="
+            echo "Checking container..."
+            docker ps --filter "name=bakery-invoice-app"
+
+            echo "Checking application health..."
+            curl -f http://localhost/api/health
+
+            echo "================================"
+            echo "Deployment successful"
+            echo "================================"
