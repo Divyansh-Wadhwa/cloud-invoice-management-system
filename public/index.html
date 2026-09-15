@@ -4,20 +4,532 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0f172a">
-<title>BakeryFlow | Billing</title>
+<title>Billing Management System</title>
+
 <script src="https://unpkg.com/@zxing/browser@0.2.1"></script>
+
 <style>
-:root{--bg:#f5f7fb;--card:#fff;--text:#0f172a;--muted:#64748b;--line:#e2e8f0;--primary:#111827;--accent:#2563eb;--success:#15803d;--danger:#dc2626;--shadow:0 8px 30px rgba(15,23,42,.07)}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}.app{min-height:100vh;display:flex}.sidebar{width:240px;background:#0f172a;color:#fff;padding:22px 14px;position:fixed;inset:0 auto 0 0}.brand{font-size:20px;font-weight:800;padding:8px 12px 25px}.brand span{color:#60a5fa}.nav button{display:block;width:100%;text-align:left;background:transparent;color:#cbd5e1;padding:12px;border-radius:9px;margin:3px 0}.nav button.active,.nav button:hover{background:#1e293b;color:#fff}.main{margin-left:240px;width:calc(100% - 240px);padding:28px;max-width:1500px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}.top h1{margin:0;font-size:25px}.muted{color:var(--muted)}.page{display:none}.page.active{display:block}.grid{display:grid;gap:16px}.stats{grid-template-columns:repeat(4,minmax(0,1fr))}.card{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:18px}.stat-label{color:var(--muted);font-size:12px}.stat-value{font-size:25px;font-weight:800;margin-top:5px}.two{grid-template-columns:1.4fr .8fr}.formgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.field label{display:block;font-size:12px;font-weight:700;margin-bottom:5px;color:#475569}.field input,.field select,.field textarea{width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:10px 11px;background:#fff;outline:none}.field input:focus,.field select:focus,.field textarea:focus{border-color:#2563eb;box-shadow:0 0 0 3px #2563eb18}.actions{display:flex;gap:8px;flex-wrap:wrap}.btn{padding:10px 14px;border-radius:9px;font-weight:700}.btn-primary{background:var(--primary);color:#fff}.btn-blue{background:var(--accent);color:#fff}.btn-light{background:#eef2f7;color:#334155}.btn-danger{background:#fee2e2;color:#991b1b}.tablewrap{overflow:auto}.table{width:100%;border-collapse:collapse}.table th,.table td{padding:11px 10px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}.table th{font-size:11px;text-transform:uppercase;color:var(--muted)}.search{max-width:380px;width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:10px}.sectionhead{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:15px}.sectionhead h2{margin:0;font-size:17px}.billing{display:grid;grid-template-columns:1.6fr .75fr;gap:16px}.customerbar{display:flex;gap:10px;align-items:end}.customerbar .field{flex:1}.scanbox{border:1.5px dashed #93c5fd;background:#eff6ff;border-radius:13px;padding:18px;text-align:center;margin:14px 0}.scanbox .scanicon{font-size:36px}.cartrow{display:grid;grid-template-columns:1fr 90px 120px 100px 40px;gap:10px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)}.cartrow input{width:100%;padding:8px;border:1px solid #cbd5e1;border-radius:7px}.totalbox{background:#f8fafc;border:1px solid var(--line);border-radius:12px;padding:15px}.totalline{display:flex;justify-content:space-between;margin:7px 0}.grand{font-size:21px;font-weight:800;border-top:1px solid var(--line);padding-top:10px;margin-top:10px}.pill{display:inline-block;padding:4px 8px;border-radius:999px;background:#f1f5f9;font-size:11px}.pill.ok{background:#dcfce7;color:#166534}.pill.bad{background:#fee2e2;color:#991b1b}.empty{padding:35px;text-align:center;color:var(--muted)}.modal{display:none;position:fixed;inset:0;background:rgba(15,23,42,.65);z-index:50;align-items:center;justify-content:center;padding:15px}.modal.show{display:flex}.modalbox{background:#fff;border-radius:16px;width:min(520px,100%);max-height:92vh;overflow:auto;padding:20px}.modalbox h2{margin-top:0}.scanner{background:#000;border-radius:12px;overflow:hidden;position:relative}.scanner video{width:100%;display:block;min-height:300px;object-fit:cover}.scanline{position:absolute;left:10%;right:10%;top:50%;border-top:2px solid #60a5fa;box-shadow:0 0 10px #60a5fa}.toast{position:fixed;right:20px;bottom:20px;background:#0f172a;color:#fff;padding:12px 16px;border-radius:9px;display:none;z-index:80;box-shadow:var(--shadow)}.toast.show{display:block}.invoice-success{background:#ecfdf5;border:1px solid #bbf7d0;padding:15px;border-radius:10px;margin-top:12px}.small{font-size:12px}
-@media(max-width:900px){.sidebar{width:72px;padding:15px 8px}.brand{font-size:0;text-align:center}.brand:after{content:"B";font-size:20px}.nav button{font-size:0;text-align:center}.nav button:before{font-size:19px}.nav button:nth-child(1):before{content:"⌂"}.nav button:nth-child(2):before{content:"▣"}.nav button:nth-child(3):before{content:"♙"}.nav button:nth-child(4):before{content:"▤"}.nav button:nth-child(5):before{content:"▥"}.main{margin-left:72px;width:calc(100% - 72px);padding:18px}.stats{grid-template-columns:repeat(2,1fr)}.billing,.two{grid-template-columns:1fr}}
-@media(max-width:600px){.main{padding:12px}.stats{grid-template-columns:1fr 1fr}.formgrid{grid-template-columns:1fr}.cartrow{grid-template-columns:1fr 65px 95px 30px}.cartrow .linegst{display:none}.customerbar{display:block}.customerbar .actions{margin-top:8px}.top h1{font-size:20px}}
+:root{
+  --bg:#f5f7fb;
+  --card:#fff;
+  --text:#0f172a;
+  --muted:#64748b;
+  --line:#e2e8f0;
+  --primary:#111827;
+  --accent:#2563eb;
+  --success:#15803d;
+  --danger:#dc2626;
+  --shadow:0 8px 30px rgba(15,23,42,.07)
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font:14px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif
+}
+
+button,input,select,textarea{font:inherit}
+button{cursor:pointer;border:0}
+
+.app{
+  min-height:100vh;
+  display:flex
+}
+
+.sidebar{
+  width:240px;
+  background:#0f172a;
+  color:#fff;
+  padding:22px 14px;
+  position:fixed;
+  inset:0 auto 0 0
+}
+
+.brand{
+  font-size:20px;
+  font-weight:800;
+  padding:8px 12px 25px
+}
+
+.nav button{
+  display:block;
+  width:100%;
+  text-align:left;
+  background:transparent;
+  color:#cbd5e1;
+  padding:12px;
+  border-radius:9px;
+  margin:3px 0
+}
+
+.nav button.active,
+.nav button:hover{
+  background:#1e293b;
+  color:#fff
+}
+
+.main{
+  margin-left:240px;
+  width:calc(100% - 240px);
+  padding:28px;
+  max-width:1500px
+}
+
+.top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:22px
+}
+
+.top h1{
+  margin:0;
+  font-size:25px
+}
+
+.muted{color:var(--muted)}
+.small{font-size:12px}
+
+.page{display:none}
+.page.active{display:block}
+
+.grid{
+  display:grid;
+  gap:16px
+}
+
+.stats{
+  grid-template-columns:repeat(4,minmax(0,1fr))
+}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:14px;
+  box-shadow:var(--shadow);
+  padding:18px
+}
+
+.stat-label{
+  color:var(--muted);
+  font-size:12px
+}
+
+.stat-value{
+  font-size:25px;
+  font-weight:800;
+  margin-top:5px
+}
+
+.two{
+  grid-template-columns:1.4fr .8fr
+}
+
+.formgrid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px
+}
+
+.field label{
+  display:block;
+  font-size:12px;
+  font-weight:700;
+  margin-bottom:5px;
+  color:#475569
+}
+
+.field input,
+.field select,
+.field textarea{
+  width:100%;
+  border:1px solid #cbd5e1;
+  border-radius:9px;
+  padding:10px 11px;
+  background:#fff;
+  outline:none
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus{
+  border-color:#2563eb;
+  box-shadow:0 0 0 3px #2563eb18
+}
+
+.actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap
+}
+
+.btn{
+  padding:10px 14px;
+  border-radius:9px;
+  font-weight:700
+}
+
+.btn-primary{
+  background:var(--primary);
+  color:#fff
+}
+
+.btn-blue{
+  background:var(--accent);
+  color:#fff
+}
+
+.btn-light{
+  background:#eef2f7;
+  color:#334155
+}
+
+.btn-danger{
+  background:#fee2e2;
+  color:#991b1b
+}
+
+.btn:disabled{
+  opacity:.55;
+  cursor:not-allowed
+}
+
+.tablewrap{
+  overflow:auto
+}
+
+.table{
+  width:100%;
+  border-collapse:collapse
+}
+
+.table th,
+.table td{
+  padding:11px 10px;
+  border-bottom:1px solid var(--line);
+  text-align:left;
+  white-space:nowrap
+}
+
+.table th{
+  font-size:11px;
+  text-transform:uppercase;
+  color:var(--muted)
+}
+
+.search{
+  max-width:380px;
+  width:100%;
+  border:1px solid #cbd5e1;
+  border-radius:9px;
+  padding:10px
+}
+
+.sectionhead{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  margin-bottom:15px
+}
+
+.sectionhead h2{
+  margin:0;
+  font-size:17px
+}
+
+.billing{
+  display:grid;
+  grid-template-columns:1.6fr .75fr;
+  gap:16px
+}
+
+.customerbar{
+  display:flex;
+  gap:10px;
+  align-items:end
+}
+
+.customerbar .field{
+  flex:1
+}
+
+.scanbox{
+  border:1.5px dashed #93c5fd;
+  background:#eff6ff;
+  border-radius:13px;
+  padding:18px;
+  text-align:center;
+  margin:14px 0
+}
+
+.scanbox .scanicon{
+  font-size:36px
+}
+
+.cartrow{
+  display:grid;
+  grid-template-columns:1fr 90px 120px 100px 40px;
+  gap:10px;
+  align-items:center;
+  padding:11px 0;
+  border-bottom:1px solid var(--line)
+}
+
+.cartrow input{
+  width:100%;
+  padding:8px;
+  border:1px solid #cbd5e1;
+  border-radius:7px
+}
+
+.totalbox{
+  background:#f8fafc;
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:15px
+}
+
+.totalline{
+  display:flex;
+  justify-content:space-between;
+  margin:7px 0
+}
+
+.grand{
+  font-size:21px;
+  font-weight:800;
+  border-top:1px solid var(--line);
+  padding-top:10px;
+  margin-top:10px
+}
+
+.pill{
+  display:inline-block;
+  padding:4px 8px;
+  border-radius:999px;
+  background:#f1f5f9;
+  font-size:11px
+}
+
+.pill.ok{
+  background:#dcfce7;
+  color:#166534
+}
+
+.pill.bad{
+  background:#fee2e2;
+  color:#991b1b
+}
+
+.empty{
+  padding:35px;
+  text-align:center;
+  color:var(--muted)
+}
+
+.modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(15,23,42,.65);
+  z-index:50;
+  align-items:center;
+  justify-content:center;
+  padding:15px
+}
+
+.modal.show{
+  display:flex
+}
+
+.modalbox{
+  background:#fff;
+  border-radius:16px;
+  width:min(520px,100%);
+  max-height:92vh;
+  overflow:auto;
+  padding:20px
+}
+
+.modalbox h2{
+  margin-top:0
+}
+
+.scanner{
+  background:#000;
+  border-radius:12px;
+  overflow:hidden;
+  position:relative
+}
+
+.scanner video{
+  width:100%;
+  display:block;
+  min-height:300px;
+  object-fit:cover
+}
+
+.scanline{
+  position:absolute;
+  left:10%;
+  right:10%;
+  top:50%;
+  border-top:2px solid #60a5fa;
+  box-shadow:0 0 10px #60a5fa
+}
+
+.scan-status{
+  margin-top:10px;
+  padding:10px;
+  border-radius:8px;
+  background:#f8fafc
+}
+
+.product-barcode-box{
+  display:flex;
+  gap:8px;
+  align-items:center
+}
+
+.product-barcode-box input{
+  flex:1
+}
+
+.product-barcode-box input[readonly]{
+  background:#f8fafc;
+  color:#475569;
+  cursor:not-allowed
+}
+
+.toast{
+  position:fixed;
+  right:20px;
+  bottom:20px;
+  background:#0f172a;
+  color:#fff;
+  padding:12px 16px;
+  border-radius:9px;
+  display:none;
+  z-index:80;
+  box-shadow:var(--shadow)
+}
+
+.toast.show{
+  display:block
+}
+
+.invoice-success{
+  background:#ecfdf5;
+  border:1px solid #bbf7d0;
+  padding:15px;
+  border-radius:10px;
+  margin-top:12px
+}
+
+@media(max-width:900px){
+  .sidebar{
+    width:72px;
+    padding:15px 8px
+  }
+
+  .brand{
+    font-size:0;
+    text-align:center
+  }
+
+  .brand:after{
+    content:"B";
+    font-size:20px
+  }
+
+  .nav button{
+    font-size:0;
+    text-align:center
+  }
+
+  .nav button:before{
+    font-size:19px
+  }
+
+  .nav button:nth-child(1):before{content:"⌂"}
+  .nav button:nth-child(2):before{content:"▣"}
+  .nav button:nth-child(3):before{content:"♙"}
+  .nav button:nth-child(4):before{content:"▤"}
+  .nav button:nth-child(5):before{content:"▥"}
+
+  .main{
+    margin-left:72px;
+    width:calc(100% - 72px);
+    padding:18px
+  }
+
+  .stats{
+    grid-template-columns:repeat(2,1fr)
+  }
+
+  .billing,
+  .two{
+    grid-template-columns:1fr
+  }
+}
+
+@media(max-width:600px){
+  .main{
+    padding:12px
+  }
+
+  .stats{
+    grid-template-columns:1fr 1fr
+  }
+
+  .formgrid{
+    grid-template-columns:1fr
+  }
+
+  .cartrow{
+    grid-template-columns:1fr 65px 95px 30px
+  }
+
+  .cartrow .linegst{
+    display:none
+  }
+
+  .customerbar{
+    display:block
+  }
+
+  .customerbar .actions{
+    margin-top:8px
+  }
+
+  .top h1{
+    font-size:20px
+  }
+
+  .product-barcode-box{
+    flex-direction:column;
+    align-items:stretch
+  }
+
+  .product-barcode-box button{
+    width:100%
+  }
+}
 </style>
 </head>
+
 <body>
+
 <div class="app">
+
 <aside class="sidebar">
-  <div class="brand">Bakery<span>Flow</span></div>
+
+  <div class="brand">Billing</div>
+
   <nav class="nav">
     <button class="active" data-page="dashboard">Dashboard</button>
     <button data-page="billing">New Bill</button>
@@ -25,231 +537,2432 @@ button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}.app{mi
     <button data-page="customers">Customers</button>
     <button data-page="invoices">Invoices</button>
   </nav>
+
 </aside>
 
+
 <main class="main">
-  <div class="top"><div><h1 id="pageTitle">Dashboard</h1><div class="muted">Cloud-based wholesale billing</div></div><button class="btn btn-blue" onclick="showPage('billing')">+ New Invoice</button></div>
+
+  <div class="top">
+
+    <div>
+      <h1 id="pageTitle">Dashboard</h1>
+      <div class="muted">Business billing and invoice management</div>
+    </div>
+
+    <button class="btn btn-blue" onclick="showPage('billing')">
+      + New Invoice
+    </button>
+
+  </div>
+
+
+  <!-- ======================================================
+       DASHBOARD
+       ====================================================== -->
 
   <section id="page-dashboard" class="page active">
+
     <div class="grid stats">
-      <div class="card"><div class="stat-label">Today's Sales</div><div class="stat-value" id="statSales">₹0.00</div></div>
-      <div class="card"><div class="stat-label">Today's Invoices</div><div class="stat-value" id="statInvoices">0</div></div>
-      <div class="card"><div class="stat-label">Customers</div><div class="stat-value" id="statCustomers">0</div></div>
-      <div class="card"><div class="stat-label">Active Products</div><div class="stat-value" id="statProducts">0</div></div>
+
+      <div class="card">
+        <div class="stat-label">Today's Sales</div>
+        <div class="stat-value" id="statSales">₹0.00</div>
+      </div>
+
+      <div class="card">
+        <div class="stat-label">Today's Invoices</div>
+        <div class="stat-value" id="statInvoices">0</div>
+      </div>
+
+      <div class="card">
+        <div class="stat-label">Customers</div>
+        <div class="stat-value" id="statCustomers">0</div>
+      </div>
+
+      <div class="card">
+        <div class="stat-label">Active Products</div>
+        <div class="stat-value" id="statProducts">0</div>
+      </div>
+
     </div>
-    <div class="card" style="margin-top:16px"><div class="sectionhead"><h2>Recent Invoices</h2><button class="btn btn-light" onclick="showPage('invoices')">View all</button></div><div id="dashInvoices"></div></div>
+
+
+    <div class="card" style="margin-top:16px">
+
+      <div class="sectionhead">
+
+        <h2>Recent Invoices</h2>
+
+        <button class="btn btn-light" onclick="showPage('invoices')">
+          View all
+        </button>
+
+      </div>
+
+      <div id="dashInvoices"></div>
+
+    </div>
+
   </section>
+
+
+  <!-- ======================================================
+       BILLING
+       ====================================================== -->
 
   <section id="page-billing" class="page">
+
     <div class="billing">
+
       <div class="card">
-        <div class="sectionhead"><h2>Create Invoice</h2><span class="pill" id="cartCount">0 items</span></div>
+
+        <div class="sectionhead">
+
+          <h2>Create Invoice</h2>
+
+          <span class="pill" id="cartCount">
+            0 items
+          </span>
+
+        </div>
+
+
         <div class="customerbar">
-          <div class="field"><label>Customer</label><select id="billCustomer"><option value="">Select customer...</option></select></div>
-          <div class="actions"><button class="btn btn-light" onclick="showPage('customers')">+ Customer</button></div>
+
+          <div class="field">
+
+            <label>Customer</label>
+
+            <select id="billCustomer">
+              <option value="">Select customer...</option>
+            </select>
+
+          </div>
+
+          <div class="actions">
+
+            <button
+              class="btn btn-light"
+              onclick="showPage('customers')"
+            >
+              + Customer
+            </button>
+
+          </div>
+
         </div>
+
+
         <div class="scanbox">
+
           <div class="scanicon">▣</div>
-          <strong>Scan product barcode</strong>
-          <div class="muted small">Use your phone camera or enter a barcode manually</div>
-          <div class="actions" style="justify-content:center;margin-top:10px">
-            <button class="btn btn-blue" onclick="openScanner()">Open Camera Scanner</button>
-            <input id="manualBarcode" class="search" style="max-width:220px" placeholder="Enter barcode">
-            <button class="btn btn-light" onclick="lookupManualBarcode()">Add</button>
+
+          <strong>Scan Product Barcode</strong>
+
+          <div class="muted small">
+            Scan a registered product using your device camera
           </div>
+
+          <div
+            class="actions"
+            style="justify-content:center;margin-top:10px"
+          >
+
+            <button
+              class="btn btn-blue"
+              onclick="openScanner()"
+            >
+              📷 Open Camera Scanner
+            </button>
+
+            <input
+              id="manualBarcode"
+              class="search"
+              style="max-width:220px"
+              placeholder="Enter barcode"
+            >
+
+            <button
+              class="btn btn-light"
+              onclick="lookupManualBarcode()"
+            >
+              Add
+            </button>
+
+          </div>
+
         </div>
+
+
         <div id="cart"></div>
-        <div id="emptyCart" class="empty">Scan a barcode to start building the invoice.</div>
-      </div>
-      <div>
-        <div class="card">
-          <h2 style="margin-top:0">Invoice Summary</h2>
-          <div class="field"><label>Discount (₹)</label><input id="discount" type="number" min="0" step="0.01" value="0" oninput="renderCart()"></div>
-          <div class="totalbox" style="margin-top:15px">
-            <div class="totalline"><span>Subtotal</span><strong id="sumSubtotal">₹0.00</strong></div>
-            <div class="totalline"><span>Discount</span><strong id="sumDiscount">₹0.00</strong></div>
-            <div class="totalline"><span>Taxable Amount</span><strong id="sumTaxable">₹0.00</strong></div>
-            <div class="totalline"><span>GST</span><strong id="sumGst">₹0.00</strong></div>
-            <div class="totalline grand"><span>Total</span><strong id="sumTotal">₹0.00</strong></div>
-          </div>
-          <label style="display:flex;gap:8px;align-items:center;margin:15px 0"><input id="emailInvoice" type="checkbox" checked> Email invoice to customer</label>
-          <button class="btn btn-primary" style="width:100%;padding:13px" onclick="generateInvoice()">Generate & Save Invoice</button>
-          <div id="invoiceResult"></div>
+
+        <div
+          id="emptyCart"
+          class="empty"
+        >
+          Scan a barcode to start building the invoice.
         </div>
+
       </div>
+
+
+      <div>
+
+        <div class="card">
+
+          <h2 style="margin-top:0">
+            Invoice Summary
+          </h2>
+
+          <div class="field">
+
+            <label>Discount (₹)</label>
+
+            <input
+              id="discount"
+              type="number"
+              min="0"
+              step="0.01"
+              value="0"
+              oninput="renderCart()"
+            >
+
+          </div>
+
+
+          <div
+            class="totalbox"
+            style="margin-top:15px"
+          >
+
+            <div class="totalline">
+              <span>Subtotal</span>
+              <strong id="sumSubtotal">₹0.00</strong>
+            </div>
+
+            <div class="totalline">
+              <span>Discount</span>
+              <strong id="sumDiscount">₹0.00</strong>
+            </div>
+
+            <div class="totalline">
+              <span>Taxable Amount</span>
+              <strong id="sumTaxable">₹0.00</strong>
+            </div>
+
+            <div class="totalline">
+              <span>GST</span>
+              <strong id="sumGst">₹0.00</strong>
+            </div>
+
+            <div class="totalline grand">
+              <span>Total</span>
+              <strong id="sumTotal">₹0.00</strong>
+            </div>
+
+          </div>
+
+
+          <label
+            style="display:flex;gap:8px;align-items:center;margin:15px 0"
+          >
+
+            <input
+              id="emailInvoice"
+              type="checkbox"
+              checked
+            >
+
+            Email invoice to customer
+
+          </label>
+
+
+          <button
+            class="btn btn-primary"
+            style="width:100%;padding:13px"
+            onclick="generateInvoice()"
+          >
+            Generate & Save Invoice
+          </button>
+
+
+          <div id="invoiceResult"></div>
+
+        </div>
+
+      </div>
+
     </div>
+
   </section>
+
+
+  <!-- ======================================================
+       PRODUCTS
+       ====================================================== -->
 
   <section id="page-products" class="page">
+
     <div class="card">
-      <div class="sectionhead"><h2>Product Register</h2><button class="btn btn-blue" onclick="openProductModal()">+ Register Product</button></div>
-      <input id="productSearch" class="search" placeholder="Search product or barcode..." oninput="loadProducts()">
-      <div class="tablewrap" style="margin-top:12px"><table class="table"><thead><tr><th>Barcode</th><th>Product</th><th>Unit</th><th>Price</th><th>GST</th><th>Status</th><th></th></tr></thead><tbody id="productTable"></tbody></table></div>
+
+      <div class="sectionhead">
+
+        <h2>Product Register</h2>
+
+        <button
+          class="btn btn-blue"
+          onclick="openProductModal()"
+        >
+          + Register Product
+        </button>
+
+      </div>
+
+
+      <input
+        id="productSearch"
+        class="search"
+        placeholder="Search product or barcode..."
+        oninput="loadProducts()"
+      >
+
+
+      <div
+        class="tablewrap"
+        style="margin-top:12px"
+      >
+
+        <table class="table">
+
+          <thead>
+
+            <tr>
+              <th>Barcode</th>
+              <th>Product</th>
+              <th>Unit</th>
+              <th>Price</th>
+              <th>GST</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+
+          </thead>
+
+          <tbody id="productTable"></tbody>
+
+        </table>
+
+      </div>
+
     </div>
+
   </section>
+
+
+  <!-- ======================================================
+       CUSTOMERS
+       ====================================================== -->
 
   <section id="page-customers" class="page">
+
     <div class="card">
-      <div class="sectionhead"><h2>Customer Accounts</h2><button class="btn btn-blue" onclick="openCustomerModal()">+ Add Customer</button></div>
-      <input id="customerSearch" class="search" placeholder="Search name, phone or email..." oninput="loadCustomers()">
-      <div class="tablewrap" style="margin-top:12px"><table class="table"><thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>GSTIN</th><th>Address</th></tr></thead><tbody id="customerTable"></tbody></table></div>
+
+      <div class="sectionhead">
+
+        <h2>Customer Accounts</h2>
+
+        <button
+          class="btn btn-blue"
+          onclick="openCustomerModal()"
+        >
+          + Add Customer
+        </button>
+
+      </div>
+
+
+      <input
+        id="customerSearch"
+        class="search"
+        placeholder="Search name, phone or email..."
+        oninput="loadCustomers()"
+      >
+
+
+      <div
+        class="tablewrap"
+        style="margin-top:12px"
+      >
+
+        <table class="table">
+
+          <thead>
+
+            <tr>
+              <th>Name</th>
+              <th>Phone</th>
+              <th>Email</th>
+              <th>GSTIN</th>
+              <th>Address</th>
+            </tr>
+
+          </thead>
+
+          <tbody id="customerTable"></tbody>
+
+        </table>
+
+      </div>
+
     </div>
+
   </section>
+
+
+  <!-- ======================================================
+       INVOICES
+       ====================================================== -->
 
   <section id="page-invoices" class="page">
+
     <div class="card">
-      <div class="sectionhead"><h2>Invoice History</h2><input id="invoiceSearch" class="search" placeholder="Search invoice or customer..." oninput="loadInvoices()"></div>
-      <div class="tablewrap"><table class="table"><thead><tr><th>Invoice</th><th>Customer</th><th>Total</th><th>Email</th><th>Payment</th><th>Date</th><th></th></tr></thead><tbody id="invoiceTable"></tbody></table></div>
+
+      <div class="sectionhead">
+
+        <h2>Invoice History</h2>
+
+        <input
+          id="invoiceSearch"
+          class="search"
+          placeholder="Search invoice or customer..."
+          oninput="loadInvoices()"
+        >
+
+      </div>
+
+
+      <div class="tablewrap">
+
+        <table class="table">
+
+          <thead>
+
+            <tr>
+              <th>Invoice</th>
+              <th>Customer</th>
+              <th>Total</th>
+              <th>Email</th>
+              <th>Payment</th>
+              <th>Date</th>
+              <th></th>
+            </tr>
+
+          </thead>
+
+          <tbody id="invoiceTable"></tbody>
+
+        </table>
+
+      </div>
+
     </div>
+
   </section>
+
 </main>
+
 </div>
+
+
+<!-- ========================================================
+     BILLING SCANNER
+     ======================================================== -->
 
 <div id="scannerModal" class="modal">
+
   <div class="modalbox">
-    <div class="sectionhead"><h2>Scan Barcode</h2><button class="btn btn-light" onclick="closeScanner()">Close</button></div>
-    <div class="scanner"><video id="scannerVideo" muted playsinline></video><div class="scanline"></div></div>
-    <p class="muted small">Point the camera at the barcode. The product will open automatically when recognized.</p>
-    <div id="scanError" class="small"></div>
+
+    <div class="sectionhead">
+
+      <h2 id="scannerTitle">
+        Scan Barcode
+      </h2>
+
+      <button
+        class="btn btn-light"
+        onclick="closeScanner()"
+      >
+        Close
+      </button>
+
+    </div>
+
+
+    <div class="scanner">
+
+      <video
+        id="scannerVideo"
+        muted
+        playsinline
+      ></video>
+
+      <div class="scanline"></div>
+
+    </div>
+
+
+    <div
+      id="scanStatus"
+      class="scan-status small"
+    >
+      Point the camera at the barcode.
+    </div>
+
+
+    <div
+      id="scanError"
+      class="small"
+      style="margin-top:8px"
+    ></div>
+
   </div>
+
 </div>
 
-<div id="productModal" class="modal"><div class="modalbox">
-  <div class="sectionhead"><h2>Register Product</h2><button class="btn btn-light" onclick="closeModal('productModal')">Close</button></div>
-  <form onsubmit="saveProduct(event)">
-    <div class="formgrid">
-      <div class="field"><label>Barcode *</label><input id="pBarcode" required></div>
-      <div class="field"><label>Product Name *</label><input id="pName" required></div>
-      <div class="field"><label>Selling Price (₹) *</label><input id="pPrice" type="number" min="0" step="0.01" required></div>
-      <div class="field"><label>GST %</label><input id="pGst" type="number" min="0" step="0.01" value="5"></div>
-      <div class="field"><label>Unit</label><input id="pUnit" value="pcs"></div>
-      <div class="field"><label>HSN Code</label><input id="pHsn"></div>
-    </div>
-    <div class="field" style="margin-top:12px"><label>Description</label><input id="pDescription"></div>
-    <button class="btn btn-primary" style="margin-top:15px">Save Product</button>
-  </form>
-</div></div>
 
-<div id="customerModal" class="modal"><div class="modalbox">
-  <div class="sectionhead"><h2>Create Customer Account</h2><button class="btn btn-light" onclick="closeModal('customerModal')">Close</button></div>
-  <form onsubmit="saveCustomer(event)">
-    <div class="formgrid">
-      <div class="field"><label>Name *</label><input id="cName" required></div>
-      <div class="field"><label>Phone</label><input id="cPhone"></div>
-      <div class="field"><label>Email</label><input id="cEmail" type="email"></div>
-      <div class="field"><label>GSTIN</label><input id="cGstin"></div>
-    </div>
-    <div class="field" style="margin-top:12px"><label>Address</label><textarea id="cAddress" rows="3"></textarea></div>
-    <button class="btn btn-primary" style="margin-top:15px">Create Customer</button>
-  </form>
-</div></div>
+<!-- ========================================================
+     PRODUCT MODAL
+     ======================================================== -->
 
-<div id="priceModal" class="modal"><div class="modalbox">
-  <div class="sectionhead"><h2>Add Product to Bill</h2><button class="btn btn-light" onclick="closeModal('priceModal')">Close</button></div>
-  <div id="priceProductInfo"></div>
-  <div class="formgrid" style="margin-top:15px">
-    <div class="field"><label>Selling Price (editable)</label><input id="scanPrice" type="number" min="0" step="0.01"></div>
-    <div class="field"><label>Quantity</label><input id="scanQty" type="number" min="0.001" step="0.001" value="1"></div>
+<div id="productModal" class="modal">
+
+  <div class="modalbox">
+
+    <div class="sectionhead">
+
+      <h2 id="productModalTitle">
+        Register Product
+      </h2>
+
+      <button
+        class="btn btn-light"
+        onclick="closeModal('productModal')"
+      >
+        Close
+      </button>
+
+    </div>
+
+
+    <form onsubmit="saveProduct(event)">
+
+      <!-- BARCODE -->
+
+      <div class="field">
+
+        <label>Product Barcode *</label>
+
+        <div class="product-barcode-box">
+
+          <input
+            id="pBarcode"
+            placeholder="Barcode will appear after scanning"
+            readonly
+            required
+          >
+
+          <button
+            id="productScanButton"
+            type="button"
+            class="btn btn-blue"
+            onclick="openProductBarcodeScanner()"
+          >
+            📷 Scan Barcode
+          </button>
+
+        </div>
+
+
+        <div
+          id="productBarcodeStatus"
+          class="muted small"
+          style="margin-top:6px"
+        >
+          Barcode must be scanned using the camera.
+        </div>
+
+      </div>
+
+
+      <div
+        class="formgrid"
+        style="margin-top:12px"
+      >
+
+        <div class="field">
+
+          <label>Product Name *</label>
+
+          <input
+            id="pName"
+            required
+          >
+
+        </div>
+
+
+        <div class="field">
+
+          <label>Selling Price (₹) *</label>
+
+          <input
+            id="pPrice"
+            type="number"
+            min="0"
+            step="0.01"
+            required
+          >
+
+        </div>
+
+
+        <div class="field">
+
+          <label>GST %</label>
+
+          <input
+            id="pGst"
+            type="number"
+            min="0"
+            step="0.01"
+            value="5"
+          >
+
+        </div>
+
+
+        <div class="field">
+
+          <label>Unit</label>
+
+          <input
+            id="pUnit"
+            value="pcs"
+          >
+
+        </div>
+
+
+        <div class="field">
+
+          <label>HSN Code</label>
+
+          <input id="pHsn">
+
+        </div>
+
+      </div>
+
+
+      <div
+        class="field"
+        style="margin-top:12px"
+      >
+
+        <label>Description</label>
+
+        <input id="pDescription">
+
+      </div>
+
+
+      <button
+        class="btn btn-primary"
+        style="margin-top:15px"
+      >
+        Save Product
+      </button>
+
+    </form>
+
   </div>
-  <button class="btn btn-primary" style="margin-top:15px;width:100%" onclick="confirmScannedProduct()">Add to Invoice</button>
-</div></div>
+
+</div>
+
+
+<!-- ========================================================
+     CUSTOMER MODAL
+     ======================================================== -->
+
+<div id="customerModal" class="modal">
+
+  <div class="modalbox">
+
+    <div class="sectionhead">
+
+      <h2>Create Customer Account</h2>
+
+      <button
+        class="btn btn-light"
+        onclick="closeModal('customerModal')"
+      >
+        Close
+      </button>
+
+    </div>
+
+
+    <form onsubmit="saveCustomer(event)">
+
+      <div class="formgrid">
+
+        <div class="field">
+
+          <label>Name *</label>
+
+          <input
+            id="cName"
+            required
+          >
+
+        </div>
+
+
+        <div class="field">
+
+          <label>Phone</label>
+
+          <input id="cPhone">
+
+        </div>
+
+
+        <div class="field">
+
+          <label>Email</label>
+
+          <input
+            id="cEmail"
+            type="email"
+          >
+
+        </div>
+
+
+        <div class="field">
+
+          <label>GSTIN</label>
+
+          <input id="cGstin">
+
+        </div>
+
+      </div>
+
+
+      <div
+        class="field"
+        style="margin-top:12px"
+      >
+
+        <label>Address</label>
+
+        <textarea
+          id="cAddress"
+          rows="3"
+        ></textarea>
+
+      </div>
+
+
+      <button
+        class="btn btn-primary"
+        style="margin-top:15px"
+      >
+        Create Customer
+      </button>
+
+    </form>
+
+  </div>
+
+</div>
+
+
+<!-- ========================================================
+     PRICE MODAL
+     ======================================================== -->
+
+<div id="priceModal" class="modal">
+
+  <div class="modalbox">
+
+    <div class="sectionhead">
+
+      <h2>Add Product to Bill</h2>
+
+      <button
+        class="btn btn-light"
+        onclick="closeModal('priceModal')"
+      >
+        Close
+      </button>
+
+    </div>
+
+
+    <div id="priceProductInfo"></div>
+
+
+    <div
+      class="formgrid"
+      style="margin-top:15px"
+    >
+
+      <div class="field">
+
+        <label>Selling Price (editable)</label>
+
+        <input
+          id="scanPrice"
+          type="number"
+          min="0"
+          step="0.01"
+        >
+
+      </div>
+
+
+      <div class="field">
+
+        <label>Quantity</label>
+
+        <input
+          id="scanQty"
+          type="number"
+          min="0.001"
+          step="0.001"
+          value="1"
+        >
+
+      </div>
+
+    </div>
+
+
+    <button
+      class="btn btn-primary"
+      style="margin-top:15px;width:100%"
+      onclick="confirmScannedProduct()"
+    >
+      Add to Invoice
+    </button>
+
+  </div>
+
+</div>
+
 
 <div id="toast" class="toast"></div>
 
+
 <script>
-const state={products:[],customers:[],cart:[],scanner:null,scannerStream:null,scannedProduct:null};
-const money=n=>'₹'+Number(n||0).toFixed(2);
-const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
-function toast(msg){const e=document.getElementById('toast');e.textContent=msg;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),2800)}
-async function api(url,opts){const r=await fetch(url,opts);const j=await r.json().catch(()=>({}));if(!r.ok)throw new Error(j.error||'Request failed');return j}
-function showPage(page){
-  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
-  document.getElementById('page-'+page).classList.add('active');
-  document.querySelectorAll('.nav button').forEach(x=>x.classList.toggle('active',x.dataset.page===page));
-  const titles={dashboard:'Dashboard',billing:'New Invoice',products:'Products',customers:'Customers',invoices:'Invoices'};
-  document.getElementById('pageTitle').textContent=titles[page];
-  if(page==='dashboard')loadDashboard(); if(page==='billing')loadCustomers(); if(page==='products')loadProducts(); if(page==='customers')loadCustomers(); if(page==='invoices')loadInvoices();
+
+const state = {
+  products: [],
+  customers: [],
+  cart: [],
+  scanner: null,
+  scannerMode: null,
+  scannedProduct: null
+};
+
+
+const money = n =>
+  '₹' + Number(n || 0).toFixed(2);
+
+
+const esc = s =>
+  String(s ?? '').replace(
+    /[&<>"']/g,
+    m => ({
+      '&':'&amp;',
+      '<':'&lt;',
+      '>':'&gt;',
+      '"':'&quot;',
+      "'":'&#039;'
+    }[m])
+  );
+
+
+function toast(msg){
+
+  const e = document.getElementById('toast');
+
+  e.textContent = msg;
+
+  e.classList.add('show');
+
+  setTimeout(
+    () => e.classList.remove('show'),
+    2800
+  );
+
 }
-document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>showPage(b.dataset.page));
+
+
+async function api(url,opts){
+
+  const r = await fetch(url,opts);
+
+  const j = await r
+    .json()
+    .catch(() => ({}));
+
+  if(!r.ok)
+    throw new Error(
+      j.error || 'Request failed'
+    );
+
+  return j;
+
+}
+
+
+/* ==========================================================
+   NAVIGATION
+   ========================================================== */
+
+function showPage(page){
+
+  document
+    .querySelectorAll('.page')
+    .forEach(x =>
+      x.classList.remove('active')
+    );
+
+  document
+    .getElementById('page-'+page)
+    .classList.add('active');
+
+  document
+    .querySelectorAll('.nav button')
+    .forEach(x =>
+      x.classList.toggle(
+        'active',
+        x.dataset.page === page
+      )
+    );
+
+  const titles = {
+    dashboard:'Dashboard',
+    billing:'New Invoice',
+    products:'Products',
+    customers:'Customers',
+    invoices:'Invoices'
+  };
+
+  document.getElementById(
+    'pageTitle'
+  ).textContent = titles[page];
+
+  if(page === 'dashboard')
+    loadDashboard();
+
+  if(page === 'billing')
+    loadCustomers();
+
+  if(page === 'products')
+    loadProducts();
+
+  if(page === 'customers')
+    loadCustomers();
+
+  if(page === 'invoices')
+    loadInvoices();
+
+}
+
+
+document
+  .querySelectorAll('.nav button')
+  .forEach(
+    b => b.onclick = () =>
+      showPage(b.dataset.page)
+  );
+
+
+/* ==========================================================
+   DASHBOARD
+   ========================================================== */
 
 async function loadDashboard(){
- try{const d=await api('/api/dashboard');statSales.textContent=money(d.today_sales);statInvoices.textContent=d.today_invoices;statCustomers.textContent=d.customers;statProducts.textContent=d.products;
- const a=await api('/api/invoices');dashInvoices.innerHTML=a.slice(0,6).map(i=>`<div class="cartrow" style="grid-template-columns:1fr 1fr 110px"><div><strong>${esc(i.invoice_number)}</strong><div class="muted small">${esc(i.customer_name)}</div></div><div class="muted">${new Date(i.created_at).toLocaleString('en-IN')}</div><strong>${money(i.total)}</strong></div>`).join('')||'<div class="empty">No invoices yet.</div>';
- }catch(e){toast(e.message)}
+
+  try{
+
+    const d =
+      await api('/api/dashboard');
+
+    statSales.textContent =
+      money(d.today_sales);
+
+    statInvoices.textContent =
+      d.today_invoices;
+
+    statCustomers.textContent =
+      d.customers;
+
+    statProducts.textContent =
+      d.products;
+
+
+    const a =
+      await api('/api/invoices');
+
+    dashInvoices.innerHTML =
+      a.slice(0,6)
+       .map(i => `
+        <div
+          class="cartrow"
+          style="grid-template-columns:1fr 1fr 110px"
+        >
+
+          <div>
+            <strong>
+              ${esc(i.invoice_number)}
+            </strong>
+
+            <div class="muted small">
+              ${esc(i.customer_name)}
+            </div>
+          </div>
+
+          <div class="muted">
+            ${new Date(i.created_at)
+              .toLocaleString('en-IN')}
+          </div>
+
+          <strong>
+            ${money(i.total)}
+          </strong>
+
+        </div>
+      `)
+      .join('')
+      ||
+      '<div class="empty">No invoices yet.</div>';
+
+  }catch(e){
+
+    toast(e.message);
+
+  }
+
 }
+
+
+/* ==========================================================
+   PRODUCTS
+   ========================================================== */
 
 async function loadProducts(){
- try{state.products=await api('/api/products?search='+encodeURIComponent(productSearch?.value||''));productTable.innerHTML=state.products.map(p=>`<tr><td><code>${esc(p.barcode)}</code></td><td><strong>${esc(p.name)}</strong><div class="muted small">${esc(p.description||'')}</div></td><td>${esc(p.unit)}</td><td>${money(p.selling_price)}</td><td>${Number(p.gst_rate)}%</td><td><span class="pill ok">Active</span></td><td><button class="btn btn-light" onclick='openProductEdit(${JSON.stringify(p)})'>Edit</button></td></tr>`).join('')||'<tr><td colspan="7" class="empty">No products found.</td></tr>'
- }catch(e){toast(e.message)}
+
+  try{
+
+    state.products =
+      await api(
+        '/api/products?search=' +
+        encodeURIComponent(
+          productSearch?.value || ''
+        )
+      );
+
+
+    productTable.innerHTML =
+      state.products
+      .map(p => `
+
+        <tr>
+
+          <td>
+            <code>
+              ${esc(p.barcode)}
+            </code>
+          </td>
+
+          <td>
+
+            <strong>
+              ${esc(p.name)}
+            </strong>
+
+            <div class="muted small">
+              ${esc(p.description || '')}
+            </div>
+
+          </td>
+
+          <td>
+            ${esc(p.unit)}
+          </td>
+
+          <td>
+            ${money(p.selling_price)}
+          </td>
+
+          <td>
+            ${Number(p.gst_rate)}%
+          </td>
+
+          <td>
+            <span class="pill ok">
+              Active
+            </span>
+          </td>
+
+          <td>
+
+            <button
+              class="btn btn-light"
+              onclick='openProductEdit(${JSON.stringify(p)})'
+            >
+              Edit
+            </button>
+
+          </td>
+
+        </tr>
+
+      `)
+      .join('')
+      ||
+      '<tr><td colspan="7" class="empty">No products found.</td></tr>';
+
+  }catch(e){
+
+    toast(e.message);
+
+  }
+
 }
+
+
+/* ==========================================================
+   PRODUCT REGISTRATION
+   ========================================================== */
+
+function openProductModal(){
+
+  const form =
+    document.querySelector(
+      '#productModal form'
+    );
+
+  [
+    'pBarcode',
+    'pName',
+    'pPrice',
+    'pGst',
+    'pUnit',
+    'pHsn',
+    'pDescription'
+  ]
+  .forEach(
+    id =>
+      document.getElementById(id).value = ''
+  );
+
+
+  pGst.value = 5;
+  pUnit.value = 'pcs';
+
+
+  delete form.dataset.editId;
+
+
+  pBarcode.readOnly = true;
+
+  productScanButton.style.display =
+    'inline-block';
+
+  productBarcodeStatus.textContent =
+    'Barcode must be scanned using the camera.';
+
+  productBarcodeStatus.className =
+    'muted small';
+
+  productModalTitle.textContent =
+    'Register Product';
+
+
+  productModal.classList.add('show');
+
+}
+
+
+function openProductEdit(p){
+
+  openProductModal();
+
+
+  pBarcode.value = p.barcode;
+  pName.value = p.name;
+  pPrice.value = p.selling_price;
+  pGst.value = p.gst_rate;
+  pUnit.value = p.unit;
+  pHsn.value = p.hsn_code || '';
+  pDescription.value =
+    p.description || '';
+
+
+  const form =
+    document.querySelector(
+      '#productModal form'
+    );
+
+  form.dataset.editId = p.id;
+
+
+  /*
+    Existing product barcode is locked.
+    The user can edit product details,
+    but cannot change the barcode.
+  */
+
+  pBarcode.readOnly = true;
+
+  productScanButton.style.display =
+    'none';
+
+  productBarcodeStatus.textContent =
+    'Barcode is locked for an existing product.';
+
+  productBarcodeStatus.className =
+    'muted small';
+
+
+  productModalTitle.textContent =
+    'Edit Product';
+
+}
+
+
+async function saveProduct(e){
+
+  e.preventDefault();
+
+  const f = e.target;
+
+  const barcode =
+    pBarcode.value.trim();
+
+
+  /*
+    New products MUST have a scanned barcode.
+  */
+
+  if(!barcode){
+
+    toast(
+      'Please scan the product barcode first.'
+    );
+
+    return;
+
+  }
+
+
+  const body = {
+
+    barcode,
+
+    name:
+      pName.value.trim(),
+
+    selling_price:
+      Number(pPrice.value),
+
+    gst_rate:
+      Number(pGst.value),
+
+    unit:
+      pUnit.value.trim(),
+
+    hsn_code:
+      pHsn.value.trim(),
+
+    description:
+      pDescription.value.trim()
+
+  };
+
+
+  try{
+
+    const id =
+      f.dataset.editId;
+
+
+    await api(
+      id
+        ? '/api/products/' + id
+        : '/api/products',
+      {
+        method:
+          id ? 'PUT' : 'POST',
+
+        headers:{
+          'Content-Type':
+            'application/json'
+        },
+
+        body:
+          JSON.stringify(body)
+      }
+    );
+
+
+    closeModal('productModal');
+
+    toast('Product saved');
+
+    loadProducts();
+
+  }catch(e){
+
+    toast(e.message);
+
+  }
+
+
+  delete f.dataset.editId;
+
+}
+
+
+/* ==========================================================
+   CUSTOMERS
+   ========================================================== */
 
 async function loadCustomers(){
- try{state.customers=await api('/api/customers?search='+encodeURIComponent(customerSearch?.value||''));customerTable.innerHTML=state.customers.map(c=>`<tr><td><strong>${esc(c.name)}</strong></td><td>${esc(c.phone||'-')}</td><td>${esc(c.email||'-')}</td><td>${esc(c.gstin||'-')}</td><td>${esc(c.address||'-')}</td></tr>`).join('')||'<tr><td colspan="5" class="empty">No customers found.</td></tr>';
- const current=billCustomer.value;billCustomer.innerHTML='<option value="">Select customer...</option>'+state.customers.map(c=>`<option value="${c.id}">${esc(c.name)}${c.gstin?' • '+esc(c.gstin):''}</option>`).join('');billCustomer.value=current;
- }catch(e){toast(e.message)}
+
+  try{
+
+    state.customers =
+      await api(
+        '/api/customers?search=' +
+        encodeURIComponent(
+          customerSearch?.value || ''
+        )
+      );
+
+
+    customerTable.innerHTML =
+      state.customers
+      .map(c => `
+
+        <tr>
+
+          <td>
+            <strong>
+              ${esc(c.name)}
+            </strong>
+          </td>
+
+          <td>
+            ${esc(c.phone || '-')}
+          </td>
+
+          <td>
+            ${esc(c.email || '-')}
+          </td>
+
+          <td>
+            ${esc(c.gstin || '-')}
+          </td>
+
+          <td>
+            ${esc(c.address || '-')}
+          </td>
+
+        </tr>
+
+      `)
+      .join('')
+      ||
+      '<tr><td colspan="5" class="empty">No customers found.</td></tr>';
+
+
+    const current =
+      billCustomer.value;
+
+
+    billCustomer.innerHTML =
+      '<option value="">Select customer...</option>' +
+      state.customers
+      .map(c => `
+        <option value="${c.id}">
+          ${esc(c.name)}
+          ${c.gstin
+            ? ' • ' + esc(c.gstin)
+            : ''}
+        </option>
+      `)
+      .join('');
+
+
+    billCustomer.value =
+      current;
+
+  }catch(e){
+
+    toast(e.message);
+
+  }
+
 }
 
-async function loadInvoices(){
- try{const a=await api('/api/invoices?search='+encodeURIComponent(invoiceSearch?.value||''));invoiceTable.innerHTML=a.map(i=>`<tr><td><strong>${esc(i.invoice_number)}</strong></td><td>${esc(i.customer_name)}</td><td><strong>${money(i.total)}</strong></td><td><span class="pill ${i.email_status==='SENT'?'ok':i.email_status==='FAILED'?'bad':''}">${esc(i.email_status)}</span></td><td>${esc(i.payment_status)}</td><td>${new Date(i.created_at).toLocaleString('en-IN')}</td><td><button class="btn btn-light" onclick="downloadInvoice(${i.id})">PDF</button></td></tr>`).join('')||'<tr><td colspan="7" class="empty">No invoices found.</td></tr>'
- }catch(e){toast(e.message)}
+
+function openCustomerModal(){
+
+  [
+    'cName',
+    'cPhone',
+    'cEmail',
+    'cGstin',
+    'cAddress'
+  ]
+  .forEach(
+    id =>
+      document.getElementById(id).value = ''
+  );
+
+
+  customerModal.classList.add('show');
+
 }
 
-function openProductModal(){['pBarcode','pName','pPrice','pGst','pUnit','pHsn','pDescription'].forEach(id=>document.getElementById(id).value='');pGst.value=5;pUnit.value='pcs';document.getElementById('productModal').classList.add('show')}
-function openProductEdit(p){openProductModal();pBarcode.value=p.barcode;pName.value=p.name;pPrice.value=p.selling_price;pGst.value=p.gst_rate;pUnit.value=p.unit;pHsn.value=p.hsn_code||'';pDescription.value=p.description||'';document.querySelector('#productModal form').dataset.editId=p.id}
-async function saveProduct(e){e.preventDefault();const f=e.target;const body={barcode:pBarcode.value,name:pName.value,selling_price:Number(pPrice.value),gst_rate:Number(pGst.value),unit:pUnit.value,hsn_code:pHsn.value,description:pDescription.value};try{const id=f.dataset.editId;await api(id?'/api/products/'+id:'/api/products',{method:id?'PUT':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});closeModal('productModal');toast('Product saved');loadProducts()}catch(e){toast(e.message)}delete f.dataset.editId}
 
-function openCustomerModal(){['cName','cPhone','cEmail','cGstin','cAddress'].forEach(id=>document.getElementById(id).value='');document.getElementById('customerModal').classList.add('show')}
-async function saveCustomer(e){e.preventDefault();try{await api('/api/customers',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:cName.value,phone:cPhone.value,email:cEmail.value,gstin:cGstin.value,address:cAddress.value})});closeModal('customerModal');toast('Customer account created');loadCustomers()}catch(e){toast(e.message)}}
-function closeModal(id){document.getElementById(id).classList.remove('show')}
+async function saveCustomer(e){
+
+  e.preventDefault();
+
+  try{
+
+    await api(
+      '/api/customers',
+      {
+        method:'POST',
+
+        headers:{
+          'Content-Type':
+            'application/json'
+        },
+
+        body:JSON.stringify({
+
+          name:cName.value,
+
+          phone:cPhone.value,
+
+          email:cEmail.value,
+
+          gstin:cGstin.value,
+
+          address:cAddress.value
+
+        })
+
+      }
+    );
+
+
+    closeModal('customerModal');
+
+    toast(
+      'Customer account created'
+    );
+
+    loadCustomers();
+
+  }catch(e){
+
+    toast(e.message);
+
+  }
+
+}
+
+
+/* ==========================================================
+   BARCODE LOOKUP
+   ========================================================== */
 
 async function lookupBarcode(code){
- code=String(code||'').trim();if(!code)return;
- try{const p=await api('/api/products/barcode/'+encodeURIComponent(code));openPriceModal(p)}catch(e){toast(e.message+' — register it in Products first.')}
+
+  code =
+    String(code || '').trim();
+
+  if(!code)
+    return;
+
+
+  try{
+
+    const p =
+      await api(
+        '/api/products/barcode/' +
+        encodeURIComponent(code)
+      );
+
+    openPriceModal(p);
+
+  }catch(e){
+
+    toast(
+      e.message +
+      ' — register it in Products first.'
+    );
+
+  }
+
 }
-function lookupManualBarcode(){lookupBarcode(manualBarcode.value);manualBarcode.value=''}
-function openPriceModal(p){state.scannedProduct=p;priceProductInfo.innerHTML=`<div class="card" style="box-shadow:none;background:#f8fafc"><strong>${esc(p.name)}</strong><div class="muted">${esc(p.barcode)} · ${esc(p.unit)} · GST ${Number(p.gst_rate)}%</div><div style="font-size:21px;font-weight:800;margin-top:6px">Standard: ${money(p.selling_price)}</div></div>`;scanPrice.value=Number(p.selling_price);scanQty.value=1;priceModal.classList.add('show')}
+
+
+function lookupManualBarcode(){
+
+  lookupBarcode(
+    manualBarcode.value
+  );
+
+  manualBarcode.value = '';
+
+}
+
+
+/* ==========================================================
+   ADD PRODUCT TO INVOICE
+   ========================================================== */
+
+function openPriceModal(p){
+
+  state.scannedProduct = p;
+
+
+  priceProductInfo.innerHTML = `
+
+    <div
+      class="card"
+      style="box-shadow:none;background:#f8fafc"
+    >
+
+      <strong>
+        ${esc(p.name)}
+      </strong>
+
+      <div class="muted">
+        ${esc(p.barcode)}
+        ·
+        ${esc(p.unit)}
+        · GST
+        ${Number(p.gst_rate)}%
+      </div>
+
+      <div
+        style="font-size:21px;font-weight:800;margin-top:6px"
+      >
+        Standard:
+        ${money(p.selling_price)}
+      </div>
+
+    </div>
+
+  `;
+
+
+  scanPrice.value =
+    Number(p.selling_price);
+
+  scanQty.value = 1;
+
+  priceModal.classList.add('show');
+
+}
+
+
 function confirmScannedProduct(){
- const p=state.scannedProduct;const price=Number(scanPrice.value),qty=Number(scanQty.value);if(!p||!(price>=0)||!(qty>0)){toast('Enter a valid price and quantity');return}
- const existing=state.cart.find(x=>x.product_id===p.id&&Number(x.unit_price_override)===price);
- if(existing)existing.quantity+=qty;else state.cart.push({product_id:p.id,barcode:p.barcode,name:p.name,unit:p.unit,gst_rate:Number(p.gst_rate||0),quantity:qty,unit_price_override:price});
- closeModal('priceModal');renderCart();toast(p.name+' added to invoice')}
-function removeCart(i){state.cart.splice(i,1);renderCart()}
-function updateQty(i,v){const q=Number(v);if(q>0)state.cart[i].quantity=q;renderCart()}
-function updatePrice(i,v){const p=Number(v);if(p>=0)state.cart[i].unit_price_override=p;renderCart()}
+
+  const p =
+    state.scannedProduct;
+
+  const price =
+    Number(scanPrice.value);
+
+  const qty =
+    Number(scanQty.value);
+
+
+  if(
+    !p ||
+    !(price >= 0) ||
+    !(qty > 0)
+  ){
+
+    toast(
+      'Enter a valid price and quantity'
+    );
+
+    return;
+
+  }
+
+
+  const existing =
+    state.cart.find(
+      x =>
+        x.product_id === p.id &&
+        Number(x.unit_price_override)
+          === price
+    );
+
+
+  if(existing){
+
+    existing.quantity += qty;
+
+  }else{
+
+    state.cart.push({
+
+      product_id:p.id,
+
+      barcode:p.barcode,
+
+      name:p.name,
+
+      unit:p.unit,
+
+      gst_rate:
+        Number(p.gst_rate || 0),
+
+      quantity:qty,
+
+      unit_price_override:price
+
+    });
+
+  }
+
+
+  closeModal('priceModal');
+
+  renderCart();
+
+  toast(
+    p.name +
+    ' added to invoice'
+  );
+
+}
+
+
+function removeCart(i){
+
+  state.cart.splice(i,1);
+
+  renderCart();
+
+}
+
+
+function updateQty(i,v){
+
+  const q =
+    Number(v);
+
+  if(q > 0)
+    state.cart[i].quantity = q;
+
+  renderCart();
+
+}
+
+
+function updatePrice(i,v){
+
+  const p =
+    Number(v);
+
+  if(p >= 0)
+    state.cart[i].unit_price_override = p;
+
+  renderCart();
+
+}
+
+
+/* ==========================================================
+   CART
+   ========================================================== */
+
 function renderCart(){
- const el=cart;emptyCart.style.display=state.cart.length?'none':'block';cartCount.textContent=state.cart.length+' item'+(state.cart.length===1?'':'s');
- el.innerHTML=state.cart.map((x,i)=>{const amount=x.quantity*x.unit_price_override;return `<div class="cartrow"><div><strong>${esc(x.name)}</strong><div class="muted small">${esc(x.barcode)} · GST ${x.gst_rate}%</div></div><input type="number" min=".001" step=".001" value="${x.quantity}" onchange="updateQty(${i},this.value)"><input type="number" min="0" step=".01" value="${x.unit_price_override}" onchange="updatePrice(${i},this.value)"><strong>${money(amount)}</strong><button class="btn btn-danger" onclick="removeCart(${i})">×</button></div>`}).join('');
- let subtotal=state.cart.reduce((s,x)=>s+x.quantity*x.unit_price_override,0),disc=Math.max(0,Number(discount.value||0)),taxable=Math.max(0,subtotal-disc),gst=state.cart.reduce((s,x)=>s+x.quantity*x.unit_price_override*(x.gst_rate/100),0)*(subtotal?taxable/subtotal:0),total=taxable+gst;
- sumSubtotal.textContent=money(subtotal);sumDiscount.textContent=money(disc);sumTaxable.textContent=money(taxable);sumGst.textContent=money(gst);sumTotal.textContent=money(total);
+
+  const el = cart;
+
+
+  emptyCart.style.display =
+    state.cart.length
+      ? 'none'
+      : 'block';
+
+
+  cartCount.textContent =
+    state.cart.length +
+    ' item' +
+    (
+      state.cart.length === 1
+        ? ''
+        : 's'
+    );
+
+
+  el.innerHTML =
+    state.cart
+    .map((x,i) => {
+
+      const amount =
+        x.quantity *
+        x.unit_price_override;
+
+
+      return `
+
+        <div class="cartrow">
+
+          <div>
+
+            <strong>
+              ${esc(x.name)}
+            </strong>
+
+            <div class="muted small">
+              ${esc(x.barcode)}
+              · GST ${x.gst_rate}%
+            </div>
+
+          </div>
+
+
+          <input
+            type="number"
+            min=".001"
+            step=".001"
+            value="${x.quantity}"
+            onchange="updateQty(${i},this.value)"
+          >
+
+
+          <input
+            type="number"
+            min="0"
+            step=".01"
+            value="${x.unit_price_override}"
+            onchange="updatePrice(${i},this.value)"
+          >
+
+
+          <strong>
+            ${money(amount)}
+          </strong>
+
+
+          <button
+            class="btn btn-danger"
+            onclick="removeCart(${i})"
+          >
+            ×
+          </button>
+
+        </div>
+
+      `;
+
+    })
+    .join('');
+
+
+  const subtotal =
+    state.cart.reduce(
+      (s,x) =>
+        s +
+        x.quantity *
+        x.unit_price_override,
+      0
+    );
+
+
+  const disc =
+    Math.max(
+      0,
+      Number(
+        discount.value || 0
+      )
+    );
+
+
+  const taxable =
+    Math.max(
+      0,
+      subtotal - disc
+    );
+
+
+  const gst =
+    state.cart.reduce(
+      (s,x) =>
+        s +
+        x.quantity *
+        x.unit_price_override *
+        (x.gst_rate / 100),
+      0
+    ) *
+    (
+      subtotal
+        ? taxable / subtotal
+        : 0
+    );
+
+
+  const total =
+    taxable + gst;
+
+
+  sumSubtotal.textContent =
+    money(subtotal);
+
+  sumDiscount.textContent =
+    money(disc);
+
+  sumTaxable.textContent =
+    money(taxable);
+
+  sumGst.textContent =
+    money(gst);
+
+  sumTotal.textContent =
+    money(total);
+
 }
+
+
+/* ==========================================================
+   GENERATE INVOICE
+   ========================================================== */
+
 async function generateInvoice(){
- const customerId=Number(billCustomer.value);if(!customerId)return toast('Select a customer first');if(!state.cart.length)return toast('Add at least one product');
- const d=Number(discount.value||0);const payload={customer_id:customerId,discount:d,email_invoice:emailInvoice.checked,items:state.cart.map(x=>({product_id:x.product_id,quantity:x.quantity,unit_price_override:x.unit_price_override}))};
- try{invoiceResult.innerHTML='<div class="muted" style="margin-top:10px">Creating invoice, generating PDF and uploading to S3...</div>';const j=await api('/api/invoices',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
- invoiceResult.innerHTML=`<div class="invoice-success"><strong>Invoice ${esc(j.invoice_number)} created.</strong><div>Total: <b>${money(j.total)}</b></div><div class="small" style="margin:5px 0">Email: ${esc(j.email_status)}${j.email_error?' — '+esc(j.email_error):''}</div><div class="actions" style="margin-top:8px"><button class="btn btn-blue" onclick="window.open('${j.download_url}','_blank')">View PDF</button><button class="btn btn-light" onclick="navigator.share?navigator.share({title:'${j.invoice_number}',url:'${j.download_url}'):window.open('${j.download_url}','_blank')">Share</button></div></div>`;
- state.cart=[];discount.value=0;renderCart();loadDashboard();loadInvoices();
- }catch(e){invoiceResult.innerHTML='';toast(e.message)}
+
+  const customerId =
+    Number(
+      billCustomer.value
+    );
+
+
+  if(!customerId)
+    return toast(
+      'Select a customer first'
+    );
+
+
+  if(!state.cart.length)
+    return toast(
+      'Add at least one product'
+    );
+
+
+  const d =
+    Number(
+      discount.value || 0
+    );
+
+
+  const payload = {
+
+    customer_id:
+      customerId,
+
+    discount:
+      d,
+
+    email_invoice:
+      emailInvoice.checked,
+
+    items:
+      state.cart.map(x => ({
+
+        product_id:
+          x.product_id,
+
+        quantity:
+          x.quantity,
+
+        unit_price_override:
+          x.unit_price_override
+
+      }))
+
+  };
+
+
+  try{
+
+    invoiceResult.innerHTML =
+      '<div class="muted" style="margin-top:10px">' +
+      'Creating invoice, generating PDF and uploading to secure storage...' +
+      '</div>';
+
+
+    const j =
+      await api(
+        '/api/invoices',
+        {
+          method:'POST',
+
+          headers:{
+            'Content-Type':
+              'application/json'
+          },
+
+          body:
+            JSON.stringify(payload)
+        }
+      );
+
+
+    invoiceResult.innerHTML = `
+
+      <div class="invoice-success">
+
+        <strong>
+          Invoice
+          ${esc(j.invoice_number)}
+          created.
+        </strong>
+
+        <div>
+          Total:
+          <b>${money(j.total)}</b>
+        </div>
+
+        <div
+          class="small"
+          style="margin:5px 0"
+        >
+          Email:
+          ${esc(j.email_status)}
+          ${
+            j.email_error
+              ? ' — ' +
+                esc(j.email_error)
+              : ''
+          }
+        </div>
+
+
+        <div
+          class="actions"
+          style="margin-top:8px"
+        >
+
+          <button
+            class="btn btn-blue"
+            onclick="window.open('${j.download_url}','_blank')"
+          >
+            View PDF
+          </button>
+
+
+          <button
+            class="btn btn-light"
+            onclick="
+              navigator.share
+                ? navigator.share({
+                    title:'${j.invoice_number}',
+                    url:'${j.download_url}'
+                  })
+                : window.open(
+                    '${j.download_url}',
+                    '_blank'
+                  )
+            "
+          >
+            Share
+          </button>
+
+        </div>
+
+      </div>
+
+    `;
+
+
+    state.cart = [];
+
+    discount.value = 0;
+
+    renderCart();
+
+    loadDashboard();
+
+    loadInvoices();
+
+  }catch(e){
+
+    invoiceResult.innerHTML = '';
+
+    toast(e.message);
+
+  }
+
 }
-async function downloadInvoice(id){try{const j=await api('/api/invoices/'+id+'/download');window.open(j.url,'_blank')}catch(e){toast(e.message)}}
+
+
+/* ==========================================================
+   INVOICE HISTORY
+   ========================================================== */
+
+async function loadInvoices(){
+
+  try{
+
+    const a =
+      await api(
+        '/api/invoices?search=' +
+        encodeURIComponent(
+          invoiceSearch?.value || ''
+        )
+      );
+
+
+    invoiceTable.innerHTML =
+      a.map(i => `
+
+        <tr>
+
+          <td>
+            <strong>
+              ${esc(i.invoice_number)}
+            </strong>
+          </td>
+
+          <td>
+            ${esc(i.customer_name)}
+          </td>
+
+          <td>
+            <strong>
+              ${money(i.total)}
+            </strong>
+          </td>
+
+          <td>
+
+            <span
+              class="pill ${
+                i.email_status === 'SENT'
+                  ? 'ok'
+                  : i.email_status === 'FAILED'
+                    ? 'bad'
+                    : ''
+              }"
+            >
+              ${esc(i.email_status)}
+            </span>
+
+          </td>
+
+          <td>
+            ${esc(i.payment_status)}
+          </td>
+
+          <td>
+            ${new Date(i.created_at)
+              .toLocaleString('en-IN')}
+          </td>
+
+          <td>
+
+            <button
+              class="btn btn-light"
+              onclick="downloadInvoice(${i.id})"
+            >
+              PDF
+            </button>
+
+          </td>
+
+        </tr>
+
+      `)
+      .join('')
+      ||
+      '<tr><td colspan="7" class="empty">No invoices found.</td></tr>';
+
+  }catch(e){
+
+    toast(e.message);
+
+  }
+
+}
+
+
+async function downloadInvoice(id){
+
+  try{
+
+    const j =
+      await api(
+        '/api/invoices/' +
+        id +
+        '/download'
+      );
+
+    window.open(
+      j.url,
+      '_blank'
+    );
+
+  }catch(e){
+
+    toast(e.message);
+
+  }
+
+}
+
+
+/* ==========================================================
+   BILLING BARCODE SCANNER
+   ========================================================== */
 
 async function openScanner(){
- scannerModal.classList.add('show');scanError.textContent='Starting camera...';
- try{
-   if(!window.ZXingBrowser){throw new Error('Barcode scanner library did not load.')}
-   state.scanner=new ZXingBrowser.BrowserMultiFormatReader();
-   const devices=await ZXingBrowser.BrowserCodeReader.listVideoInputDevices();
-   if(!devices.length)throw new Error('No camera found');
-   const preferred=devices.find(d=>/back|rear|environment/i.test(d.label))||devices[devices.length-1];
-   state.scanner.decodeFromVideoDevice(preferred.deviceId, 'scannerVideo', (result,err)=>{
-     if(result){const text=result.getText();closeScanner();lookupBarcode(text)}
-   });
-   scanError.textContent='Camera ready — point it at the barcode.';
- }catch(e){scanError.textContent=e.message+' Camera access requires HTTPS on a phone browser.'}
-}
-function closeScanner(){try{state.scanner?.reset()}catch{};state.scanner=null;scannerModal.classList.remove('show')}
 
-async function init(){try{await api('/api/health');await loadCustomers();await loadProducts();await loadDashboard();renderCart()}catch(e){toast(e.message)}}
+  state.scannerMode =
+    'billing';
+
+
+  scannerTitle.textContent =
+    'Scan Product Barcode';
+
+
+  scanStatus.textContent =
+    'Point the camera at the product barcode.';
+
+
+  scannerModal.classList.add('show');
+
+  scanError.textContent =
+    'Starting camera...';
+
+
+  try{
+
+    if(!window.ZXingBrowser){
+
+      throw new Error(
+        'Barcode scanner library did not load.'
+      );
+
+    }
+
+
+    state.scanner =
+      new ZXingBrowser
+        .BrowserMultiFormatReader();
+
+
+    const devices =
+      await ZXingBrowser
+        .BrowserCodeReader
+        .listVideoInputDevices();
+
+
+    if(!devices.length){
+
+      throw new Error(
+        'No camera found.'
+      );
+
+    }
+
+
+    const preferred =
+      devices.find(
+        d =>
+          /back|rear|environment/i
+          .test(d.label)
+      ) ||
+      devices[devices.length - 1];
+
+
+    state.scanner
+      .decodeFromVideoDevice(
+        preferred.deviceId,
+        'scannerVideo',
+        (result,err) => {
+
+          if(result){
+
+            const text =
+              result
+                .getText()
+                .trim();
+
+
+            if(text){
+
+              closeScanner();
+
+              lookupBarcode(text);
+
+            }
+
+          }
+
+        }
+      );
+
+
+    scanError.textContent =
+      'Camera ready — point it at the barcode.';
+
+
+  }catch(e){
+
+    scanError.textContent =
+      e.message +
+      ' Camera access requires HTTPS on a phone browser.';
+
+  }
+
+}
+
+
+/* ==========================================================
+   PRODUCT REGISTRATION BARCODE SCANNER
+   ========================================================== */
+
+async function openProductBarcodeScanner(){
+
+  state.scannerMode =
+    'product';
+
+
+  scannerTitle.textContent =
+    'Scan Product Barcode';
+
+
+  scanStatus.textContent =
+    'Point the camera at the product barcode. The barcode will be added automatically.';
+
+
+  scannerModal.classList.add('show');
+
+  scanError.textContent =
+    'Starting camera...';
+
+
+  try{
+
+    if(!window.ZXingBrowser){
+
+      throw new Error(
+        'Barcode scanner library did not load.'
+      );
+
+    }
+
+
+    state.scanner =
+      new ZXingBrowser
+        .BrowserMultiFormatReader();
+
+
+    const devices =
+      await ZXingBrowser
+        .BrowserCodeReader
+        .listVideoInputDevices();
+
+
+    if(!devices.length){
+
+      throw new Error(
+        'No camera found.'
+      );
+
+    }
+
+
+    const preferred =
+      devices.find(
+        d =>
+          /back|rear|environment/i
+          .test(d.label)
+      ) ||
+      devices[devices.length - 1];
+
+
+    state.scanner
+      .decodeFromVideoDevice(
+        preferred.deviceId,
+        'scannerVideo',
+        (result,err) => {
+
+          if(result){
+
+            const text =
+              result
+                .getText()
+                .trim();
+
+
+            if(!text)
+              return;
+
+
+            /*
+              PRODUCT REGISTRATION MODE
+            */
+
+            if(
+              state.scannerMode ===
+              'product'
+            ){
+
+              pBarcode.value =
+                text;
+
+
+              productBarcodeStatus.textContent =
+                'Barcode detected: ' +
+                text;
+
+
+              productBarcodeStatus.className =
+                'small';
+
+
+              closeScanner();
+
+
+              toast(
+                'Barcode scanned successfully'
+              );
+
+
+              return;
+
+            }
+
+
+            /*
+              BILLING MODE
+            */
+
+            closeScanner();
+
+            lookupBarcode(text);
+
+          }
+
+        }
+      );
+
+
+    scanError.textContent =
+      'Camera ready — point it at the barcode.';
+
+
+  }catch(e){
+
+    scanError.textContent =
+      e.message +
+      ' Camera access requires HTTPS on a phone browser.';
+
+  }
+
+}
+
+
+/* ==========================================================
+   CLOSE SCANNER
+   ========================================================== */
+
+function closeScanner(){
+
+  try{
+
+    state.scanner?.reset();
+
+  }catch{}
+
+
+  state.scanner = null;
+
+  state.scannerMode = null;
+
+  scannerModal.classList.remove(
+    'show'
+  );
+
+}
+
+
+/* ==========================================================
+   CLOSE MODALS
+   ========================================================== */
+
+function closeModal(id){
+
+  document
+    .getElementById(id)
+    .classList.remove('show');
+
+}
+
+
+/* ==========================================================
+   INITIALIZE
+   ========================================================== */
+
+async function init(){
+
+  try{
+
+    await api('/api/health');
+
+    await loadCustomers();
+
+    await loadProducts();
+
+    await loadDashboard();
+
+    renderCart();
+
+  }catch(e){
+
+    toast(e.message);
+
+  }
+
+}
+
+
 init();
+
 </script>
+
 </body>
 </html>
